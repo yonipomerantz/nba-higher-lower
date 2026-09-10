@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NBA Higher/Lower — Can you go 82–0?</title>
+<meta name="description" content="A daily NBA career-stat Higher or Lower streak game. One mistake ends the run — can you go 82-0?">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <header class="topbar">
+    <button id="back-btn" class="icon-btn" aria-label="Change category" hidden>
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="brand">NBA <span class="brand-accent">HIGHER/LOWER</span></div>
+    <button id="help-btn" class="icon-btn" aria-label="How to play">?</button>
+  </header>
+
+  <main id="screen" class="screen" aria-live="polite"></main>
+
+  <div id="status" class="visually-hidden" role="status" aria-live="assertive"></div>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <div id="modal-root"></div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
