@@ -79,9 +79,10 @@ const CATEGORIES = [
   { id: 'rebounds', label: 'REBOUNDS', statKey: 'rebounds', unitLabel: 'CAREER REBOUNDS' },
 ];
 
-const WIN_STREAK = 82;
-const MILESTONES = [10, 25, 50, 75];
-const REVEAL_PAUSE_MS = 1300;
+const WIN_STREAK = 20;
+const MILESTONES = [5, 10, 15];
+const REVEAL_COUNT_MS = 2000; // how long Player B's number takes to count up on reveal
+const REVEAL_PAUSE_MS = 2800; // must exceed REVEAL_COUNT_MS so the count-up finishes before advancing
 
 function getCategory(id) { return CATEGORIES.find((c) => c.id === id); }
 function formatNumber(n) { return n.toLocaleString('en-US'); }
@@ -90,6 +91,20 @@ function initials(name) {
 }
 function prefersReducedMotion() {
   return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// Counts a number element up from 0 to `target` for a slower, more dramatic
+// reveal instead of snapping straight to the answer.
+function animateCountUp(el, target, duration) {
+  if (duration <= 0) { el.textContent = formatNumber(target); return; }
+  const start = performance.now();
+  function tick(now) {
+    const t = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - t, 3);
+    el.textContent = formatNumber(Math.round(eased * target));
+    if (t < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
 }
 
 /* =========================================================
@@ -281,8 +296,8 @@ function renderLanding() {
   wrap.className = 'landing';
   wrap.innerHTML = `
     <div class="landing-logo">NBA<span class="lg-accent">HIGHER/LOWER</span></div>
-    <p class="landing-tag">How well do you know NBA history? Pick a stat. Build your streak. <strong>Go 82&ndash;0.</strong></p>
-    <div class="goal-banner">CAN YOU GO 82&ndash;0?</div>
+    <p class="landing-tag">How well do you know NBA history? Pick a stat. Build your streak. <strong>Go ${WIN_STREAK}&ndash;0.</strong></p>
+    <div class="goal-banner">CAN YOU GO ${WIN_STREAK}&ndash;0?</div>
     <div class="category-list">
       ${CATEGORIES.map((c) => `
         <button type="button" class="category-btn" data-cat="${c.id}">
@@ -378,9 +393,9 @@ function handleChoice(choice) {
   const chosenBtn = document.getElementById(choice === 'higher' ? 'btn-higher' : 'btn-lower');
   const otherBtn = document.getElementById(choice === 'higher' ? 'btn-lower' : 'btn-higher');
 
-  valueB.textContent = formatNumber(bVal);
   valueB.classList.remove('is-mystery');
   valueB.classList.add(correct ? 'is-good' : 'is-bad');
+  animateCountUp(valueB, bVal, prefersReducedMotion() ? 0 : REVEAL_COUNT_MS);
 
   badgeSlot.innerHTML = `<span class="result-badge ${correct ? 'is-good' : 'is-bad'}">${correct ? '✓ CORRECT' : '✕ WRONG'}</span>`;
 
@@ -462,8 +477,8 @@ function renderEnd(won) {
   if (won) {
     wrap.innerHTML = `
       <div class="end-eyebrow">${getCategory(catId).label}</div>
-      <div class="end-record is-win">82&ndash;0</div>
-      <div class="end-tag">PERFECT SEASON. YOU DID IT.</div>
+      <div class="end-record is-win">${WIN_STREAK}&ndash;0</div>
+      <div class="end-tag">PERFECT RUN. YOU DID IT.</div>
       <div class="confetti-burst" id="confetti"></div>
       <div class="end-actions">
         <button type="button" class="btn btn-primary" id="play-again">PLAY AGAIN</button>
@@ -498,7 +513,7 @@ function renderEnd(won) {
   document.getElementById('change-cat').addEventListener('click', goLanding);
   document.getElementById('share-score').addEventListener('click', () => shareScore(won));
 
-  announce(won ? 'Perfect season. You went 82 and 0.' : `Game over. Final streak ${game.streak}.`);
+  announce(won ? `Perfect run. You went ${WIN_STREAK} and 0.` : `Game over. Final streak ${game.streak}.`);
 }
 
 function spawnConfetti(el) {
@@ -519,8 +534,8 @@ function spawnConfetti(el) {
 async function shareScore(won) {
   const cat = getCategory(game.categoryId);
   const lines = won
-    ? [`NBA HIGHER/LOWER \u{1F3C0}`, cat.unitLabel, `I went 82–0. PERFECT SEASON.`, `Think you can match it?`]
-    : [`NBA HIGHER/LOWER \u{1F3C0}`, cat.unitLabel, `I went ${game.streak}–1.`, `Can you go 82–0?`];
+    ? [`NBA HIGHER/LOWER \u{1F3C0}`, cat.unitLabel, `I went ${WIN_STREAK}–0. PERFECT RUN.`, `Think you can match it?`]
+    : [`NBA HIGHER/LOWER \u{1F3C0}`, cat.unitLabel, `I went ${game.streak}–1.`, `Can you go ${WIN_STREAK}–0?`];
   const text = lines.join('\n');
 
   if (navigator.share) {
@@ -562,7 +577,7 @@ function openHelpModal() {
           <li>Guess whether <strong>Player B</strong> has more or fewer.</li>
           <li>Get it right and your streak continues.</li>
           <li>One mistake ends the run.</li>
-          <li>Can you go <strong>82&ndash;0</strong>?</li>
+          <li>Can you go <strong>${WIN_STREAK}&ndash;0</strong>?</li>
         </ol>
         <p class="snapshot-note">${SNAPSHOT_LABEL}. Career totals are a fixed demo dataset, not live stats.</p>
         <button type="button" class="btn btn-primary" id="close-help">GOT IT</button>

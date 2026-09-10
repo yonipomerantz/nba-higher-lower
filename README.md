@@ -9,11 +9,10 @@ continues; one wrong guess ends the run.
 
 ## The goal
 
-**Can you go 82–0?**
+**Can you go 20–0?**
 
 Pick a category — Points, Assists, or Rebounds — and chain as many correct
-guesses as possible. Reaching a streak of 82 (an NBA regular season's worth of
-games) is the ultimate win condition.
+guesses as possible. Reaching a streak of 20 in a row is the win condition.
 
 ## How it works
 
