@@ -95,14 +95,15 @@ function prefersReducedMotion() {
 
 // Counts a number element up from 0 to `target` for a slower, more dramatic
 // reveal instead of snapping straight to the answer.
-function animateCountUp(el, target, duration) {
-  if (duration <= 0) { el.textContent = formatNumber(target); return; }
+function animateCountUp(el, target, duration, onDone) {
+  if (duration <= 0) { el.textContent = formatNumber(target); if (onDone) onDone(); return; }
   const start = performance.now();
   function tick(now) {
     const t = Math.min(1, (now - start) / duration);
     const eased = 1 - Math.pow(1 - t, 3);
     el.textContent = formatNumber(Math.round(eased * target));
     if (t < 1) requestAnimationFrame(tick);
+    else if (onDone) onDone();
   }
   requestAnimationFrame(tick);
 }
@@ -394,8 +395,9 @@ function handleChoice(choice) {
   const otherBtn = document.getElementById(choice === 'higher' ? 'btn-lower' : 'btn-higher');
 
   valueB.classList.remove('is-mystery');
-  valueB.classList.add(correct ? 'is-good' : 'is-bad');
-  animateCountUp(valueB, bVal, prefersReducedMotion() ? 0 : REVEAL_COUNT_MS);
+  animateCountUp(valueB, bVal, prefersReducedMotion() ? 0 : REVEAL_COUNT_MS, () => {
+    valueB.classList.add(correct ? 'is-good' : 'is-bad');
+  });
 
   badgeSlot.innerHTML = `<span class="result-badge ${correct ? 'is-good' : 'is-bad'}">${correct ? '✓ CORRECT' : '✕ WRONG'}</span>`;
 
